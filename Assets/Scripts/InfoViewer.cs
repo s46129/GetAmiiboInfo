@@ -19,10 +19,10 @@ public class InfoViewer : MonoBehaviour
 
     public void AssignInfo(AmiiboInfo info)
     {
-        amiiboSeries.text = $"amiiboSeries: {info.amiiboSeries}";
-        character.text = $"character: {info.character}";
-        gameSeries.text = $"gameSeries: {info.gameSeries}";
-        name.text = $"name: {info.name}";
+        amiiboSeries.text = $"amiiboSeries: \n{info.amiiboSeries}";
+        character.text = $"character: \n{info.character}";
+        gameSeries.text = $"gameSeries: \n{info.gameSeries}";
+        name.text = $"name: \n{info.name}";
         GetImage(info);
     }
 
