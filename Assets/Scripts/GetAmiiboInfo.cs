@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public partial class GetAmiiboInfo : MonoBehaviour
 {
@@ -11,6 +8,8 @@ public partial class GetAmiiboInfo : MonoBehaviour
 
     [SerializeField] TMP_InputField inputField;
 
+    [SerializeField] private GameObject Prefab;
+    [SerializeField] Transform ListContent;
 
     public void Search()
     {
@@ -20,11 +19,21 @@ public partial class GetAmiiboInfo : MonoBehaviour
             {
                 AmiiboInfoList amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
                 Debug.Log(amiiboInfos.amiibo[0].name);
+                UpdateList(amiiboInfos);
             }
             else
             {
                 Debug.Log(response.result);
             }
         }));
+    }
+
+    private void UpdateList(AmiiboInfoList amiiboInfos)
+    {
+        amiiboInfos.amiibo.ForEach((info) =>
+        {
+            GameObject go = Instantiate(Prefab, ListContent);
+            go.GetComponent<InfoViewer>().AssignInfo(info);
+        });
     }
 }
