@@ -31,6 +31,22 @@ public class APIManager
             Debug.Log(request.downloadHandler.text);
         }
     }
+
+    public static IEnumerator DownloadImage(string url, Action<Texture2D> response)
+    {
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
+        yield return request.SendWebRequest();
+        if (request.isNetworkError || request.isHttpError)
+        {
+            Debug.Log(request.error);
+            response?.Invoke(null);
+        }
+        else
+        {
+            Texture2D texture2D = ((DownloadHandlerTexture)request.downloadHandler).texture;
+            response?.Invoke(texture2D);
+        }
+    }
 }
 
 public class Response

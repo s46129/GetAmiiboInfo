@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InfoViewer : MonoBehaviour
 {
@@ -9,6 +8,8 @@ public class InfoViewer : MonoBehaviour
     [SerializeField] TextMeshProUGUI character;
     [SerializeField] TextMeshProUGUI gameSeries;
     [SerializeField] TextMeshProUGUI name;
+    [SerializeField] private Image image;
+    private string _infoImageURL;
 
     public void AssignInfo(AmiiboInfo info)
     {
@@ -16,5 +17,19 @@ public class InfoViewer : MonoBehaviour
         character.text = $"character: {info.character}";
         gameSeries.text = $"gameSeries: {info.gameSeries}";
         name.text = $"name: {info.name}";
+        GetImage(info);
+    }
+
+    private void GetImage(AmiiboInfo info)
+    {
+        _infoImageURL = info.image;
+        StartCoroutine(APIManager.DownloadImage(_infoImageURL, texture =>
+        {
+            if (texture == null) return;
+
+            var sprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 100.0f);
+            image.sprite = sprite;
+        }));
     }
 }
