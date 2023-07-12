@@ -57,6 +57,7 @@ public partial class GetAmiiboInfo : MonoBehaviour
                 infoViewer = CreatInfoViewer(info);
             }
 
+            infoViewer.AssignInfo(info);
             _infoViewers.Add(infoViewer);
         });
     }
@@ -64,8 +65,6 @@ public partial class GetAmiiboInfo : MonoBehaviour
     private InfoViewer CreatInfoViewer(AmiiboInfo info)
     {
         GameObject go = Instantiate(Prefab, ListContent);
-        var infoViewer = go.GetComponent<InfoViewer>();
-        infoViewer.AssignInfo(info);
-        return infoViewer;
+        return go.GetComponent<InfoViewer>();
     }
 }
