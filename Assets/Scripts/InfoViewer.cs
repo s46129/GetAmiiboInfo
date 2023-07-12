@@ -34,6 +34,7 @@ public class InfoViewer : MonoBehaviour
             StopCoroutine(_coroutine);
         }
 
+        image.sprite = null;
         _coroutine = StartCoroutine(APIManager.DownloadImage(_infoImageURL, texture =>
         {
             if (texture == null) return;

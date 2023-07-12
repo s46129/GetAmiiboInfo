@@ -1,38 +1,47 @@
+using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 
-public partial class GetAmiiboInfo : MonoBehaviour
+[RequireComponent(typeof(TMP_InputField))]
+public class GetAmiiboInfo : MonoBehaviour
 {
     private string HostURL = "https://www.amiiboapi.com/api/amiibo/";
 
-    [SerializeField] TMP_InputField inputField;
+    [SerializeField] private TMP_InputField inputField;
 
     [SerializeField] private GameObject Prefab;
     [SerializeField] Transform ListContent;
 
     private readonly List<InfoViewer> _infoViewers = new List<InfoViewer>();
-    List<InfoViewer> _infoViewersObjectPool = new List<InfoViewer>();
+    [SerializeField] List<InfoViewer> _infoViewersObjectPool = new List<InfoViewer>();
+    private IEnumerator _getCoroutine;
 
     public void Search()
     {
-        StartCoroutine(APIManager.Get(HostURL + $"/?name={inputField.text}", (response) =>
+        CleanRecorder();
+        if (_getCoroutine != null)
+        {
+            StopCoroutine(_getCoroutine);
+        }
+
+        _getCoroutine = APIManager.Get(HostURL + $"/?name={inputField.text}", (response) =>
         {
             if (response.isSuccess)
             {
-                AmiiboInfoList amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
-                Debug.Log(amiiboInfos.amiibo[0].name);
+                var amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
                 UpdateList(amiiboInfos);
             }
             else
             {
                 Debug.Log(response.result);
             }
-        }));
+        });
+        StartCoroutine(_getCoroutine);
     }
 
-    private void UpdateList(AmiiboInfoList amiiboInfos)
+    private void CleanRecorder()
     {
         for (var index = 0; index < _infoViewers.Count; index++)
         {
@@ -40,31 +49,35 @@ public partial class GetAmiiboInfo : MonoBehaviour
             viewer.Dispose();
             viewer.gameObject.SetActive(false);
             _infoViewersObjectPool.Add(viewer);
-            _infoViewers.Remove(viewer);
         }
 
-        amiiboInfos.amiibo.ForEach((info) =>
-        {
-            InfoViewer infoViewer;
-            if (_infoViewersObjectPool.Count > 0)
-            {
-                infoViewer = _infoViewersObjectPool[0];
-                infoViewer.gameObject.SetActive(true);
-                _infoViewersObjectPool.Remove(infoViewer);
-            }
-            else
-            {
-                infoViewer = CreatInfoViewer(info);
-            }
-
-            infoViewer.AssignInfo(info);
-            _infoViewers.Add(infoViewer);
-        });
+        _infoViewers.Clear();
     }
 
-    private InfoViewer CreatInfoViewer(AmiiboInfo info)
+    private void UpdateList(AmiiboInfoList amiiboInfos)
     {
-        GameObject go = Instantiate(Prefab, ListContent);
-        return go.GetComponent<InfoViewer>();
+        amiiboInfos.amiibo.ForEach(info => { GetInfoViewer().AssignInfo(info); });
+    }
+
+    private InfoViewer GetInfoViewer()
+    {
+        var infoViewer = _infoViewersObjectPool.Count > 0 ? GetInfoViewerFromPool() : CreatInfoViewer();
+        _infoViewers.Add(infoViewer);
+        infoViewer.gameObject.SetActive(true);
+        infoViewer.gameObject.name = infoViewer.name;
+        return infoViewer;
+    }
+
+    private InfoViewer GetInfoViewerFromPool()
+    {
+        var infoViewer = _infoViewersObjectPool[0];
+        _infoViewersObjectPool.Remove(infoViewer);
+        return infoViewer;
+    }
+
+    private InfoViewer CreatInfoViewer()
+    {
+        var creatInfoViewer = Instantiate(Prefab, ListContent).GetComponent<InfoViewer>();
+        return creatInfoViewer;
     }
 }
