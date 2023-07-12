@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GetAmiiboInfo : MonoBehaviour
+public partial class GetAmiiboInfo : MonoBehaviour
 {
     private string HostURL = "https://www.amiiboapi.com/api/amiibo/";
 
@@ -17,7 +18,8 @@ public class GetAmiiboInfo : MonoBehaviour
         {
             if (response.isSuccess)
             {
-                Debug.Log(response.result);
+                AmiiboInfoList amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
+                Debug.Log(amiiboInfos.amiibo[0].name);
             }
             else
             {
