@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class APIManager : MonoBehaviour
+public class APIManager
 {
-    public IEnumerator Get(string uri, Action<Response> response)
+    public static IEnumerator Get(string uri, Action<Response> response)
     {
         using var request = UnityWebRequest.Get(uri);
         yield return request.SendWebRequest();
