@@ -13,10 +13,12 @@ public class GetAmiiboInfo : MonoBehaviour
 
     [SerializeField] private GameObject Prefab;
     [SerializeField] Transform ListContent;
+    [SerializeField] private TMP_Dropdown _dropdown;
 
     private readonly List<InfoViewer> _infoViewers = new List<InfoViewer>();
     [SerializeField] List<InfoViewer> _infoViewersObjectPool = new List<InfoViewer>();
     private IEnumerator _getCoroutine;
+
 
     public void Search()
     {
@@ -26,18 +28,21 @@ public class GetAmiiboInfo : MonoBehaviour
             StopCoroutine(_getCoroutine);
         }
 
-        _getCoroutine = APIManager.Get(HostURL + $"/?name={inputField.text}", (response) =>
-        {
-            if (response.isSuccess)
+        var searchType = _dropdown.options[_dropdown.value].text;
+        Debug.Log("searchType " + searchType);
+        _getCoroutine = APIManager.Get($"{HostURL}/?{searchType}={inputField.text}",
+            (response) =>
             {
-                var amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
-                UpdateList(amiiboInfos);
-            }
-            else
-            {
-                Debug.Log(response.result);
-            }
-        });
+                if (response.isSuccess)
+                {
+                    var amiiboInfos = JsonConvert.DeserializeObject<AmiiboInfoList>(response.result);
+                    UpdateList(amiiboInfos);
+                }
+                else
+                {
+                    Debug.Log(response.result);
+                }
+            });
         StartCoroutine(_getCoroutine);
     }
 
