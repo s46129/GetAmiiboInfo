@@ -10,6 +10,12 @@ public class InfoViewer : MonoBehaviour
     [SerializeField] TextMeshProUGUI name;
     [SerializeField] private Image image;
     private string _infoImageURL;
+    private Coroutine _coroutine;
+
+    private void OnDisable()
+    {
+        Dispose();
+    }
 
     public void AssignInfo(AmiiboInfo info)
     {
@@ -23,7 +29,12 @@ public class InfoViewer : MonoBehaviour
     private void GetImage(AmiiboInfo info)
     {
         _infoImageURL = info.image;
-        StartCoroutine(APIManager.DownloadImage(_infoImageURL, texture =>
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+        }
+
+        _coroutine = StartCoroutine(APIManager.DownloadImage(_infoImageURL, texture =>
         {
             if (texture == null) return;
 
@@ -31,5 +42,13 @@ public class InfoViewer : MonoBehaviour
                 new Vector2(0.5f, 0.5f), 100.0f);
             image.sprite = sprite;
         }));
+    }
+
+    public void Dispose()
+    {
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+        }
     }
 }
